@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Climate Digital Twin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛰️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#04070d;
+  --bg-1:#0a0f1a;
+  --bg-2:#0d1726;
+  --bg-3:#101d30;
+  --line:rgba(86,164,196,0.16);
+  --line-soft:rgba(86,164,196,0.08);
+  --cyan:#2ff3d0;
+  --cyan-dim:#1a9c8a;
+  --amber:#ffc247;
+  --red:#ff5c72;
+  --violet:#9b8cff;
+  --text-0:#eaf3f7;
+  --text-1:#a9bdcc;
+  --text-2:#5f7689;
+  --font-display:'Orbitron',sans-serif;
+  --font-head:'Rajdhani',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(47,243,208,0.07), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(155,140,255,0.06), transparent 60%),
+    var(--bg-0);
+  color:var(--text-0);
+  font-family:var(--font-head);
+  min-height:100vh;
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 38px 38px;
+  pointer-events:none;
+  opacity:.55;
+  z-index:0;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 20%, black, transparent 85%);
+}
+.wrap{position:relative; z-index:1; max-width:1400px; margin:0 auto; padding:18px 22px 60px;}
+
+/* ===== HEADER ===== */
+header.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:14px 22px; margin-bottom:16px;
+  background:linear-gradient(180deg, rgba(13,23,38,.9), rgba(13,23,38,.55));
+  border:1px solid var(--line); border-radius:14px;
+  backdrop-filter:blur(6px);
+  position:relative; overflow:hidden;
+}
+header.topbar::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity:.6; animation:sheen 5s linear infinite;
+}
+@keyframes sheen{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand .badge{
+  width:42px;height:42px;border-radius:10px;
+  background:conic-gradient(from 180deg, var(--cyan), var(--violet), var(--cyan));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 0 22px rgba(47,243,208,.45);
+  flex-shrink:0;
+}
+.brand h1{
+  font-family:var(--font-display); font-size:17px; letter-spacing:2px; margin:0;
+  font-weight:700; color:var(--text-0);
+}
+.brand .sub{font-family:var(--font-mono); font-size:10.5px; color:var(--cyan); letter-spacing:2px; margin-top:2px;}
+.status-cluster{display:flex; align-items:center; gap:18px; font-family:var(--font-mono); font-size:11.5px; color:var(--text-1);}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pulse 1.6s ease-in-out infinite;display:inline-block;margin-right:6px;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.clock{letter-spacing:1px;}
+
+/* ===== ASK BAR ===== */
+.askbar{
+  display:flex; gap:10px; margin-bottom:18px; position:relative;
+}
+.askbar form{flex:1; display:flex; gap:10px;}
+.askbar input{
+  flex:1; padding:14px 18px; border-radius:12px; border:1px solid var(--line);
+  background:rgba(10,15,26,.8); color:var(--text-0); font-family:var(--font-head);
+  font-size:15px; outline:none; transition:.2s;
+}
+.askbar input::placeholder{color:var(--text-2);}
+.askbar input:focus{border-color:var(--cyan); box-shadow:0 0 0 3px rgba(47,243,208,.12);}
+.askbar button{
+  padding:0 26px; border-radius:12px; border:1px solid var(--cyan);
+  background:linear-gradient(180deg, rgba(47,243,208,.18), rgba(47,243,208,.04));
+  color:var(--cyan); font-family:var(--font-display); font-weight:700; letter-spacing:1px;
+  cursor:pointer; font-size:13px; transition:.15s;
+}
+.askbar button:hover{background:rgba(47,243,208,.28); box-shadow:0 0 16px rgba(47,243,208,.3);}
+.ask-answer{
+  font-family:var(--font-mono); font-size:12.5px; color:var(--cyan); margin:-8px 0 14px 4px;
+  min-height:16px; opacity:0; transition:opacity .3s;
+}
+.ask-answer.show{opacity:1;}
+.ask-hint{font-size:11px; color:var(--text-2); margin:-10px 0 14px 4px; font-family:var(--font-mono);}
+
+/* ===== MAIN GRID ===== */
+.maingrid{display:grid; grid-template-columns:1.35fr 1fr; gap:18px;}
+@media (max-width:980px){.maingrid{grid-template-columns:1fr;}}
+
+.panel{
+  background:linear-gradient(180deg, rgba(13,23,38,.78), rgba(10,16,27,.7));
+  border:1px solid var(--line); border-radius:16px; padding:18px;
+  position:relative;
+}
+.panel-title{
+  font-family:var(--font-display); font-size:12px; letter-spacing:2px; color:var(--text-1);
+  margin:0 0 12px; display:flex; align-items:center; gap:8px;
+}
+.panel-title .dash{width:18px;height:2px;background:var(--cyan);display:inline-block;}
+
+/* ===== MAP ===== */
+.mappanel{overflow:hidden;}
+.map-stage{position:relative; border-radius:12px; overflow:hidden; background:radial-gradient(ellipse 80% 70% at 50% 40%, rgba(47,243,208,.05), transparent 70%);}
+.map-stage svg{width:100%; height:auto; display:block;}
+.sweep{
+  position:absolute; inset:0; pointer-events:none; mix-blend-mode:screen;
+  background:conic-gradient(from 0deg, rgba(47,243,208,0) 0deg, rgba(47,243,208,.22) 14deg, rgba(47,243,208,0) 40deg, transparent 360deg);
+  animation:spin 7s linear infinite; transform-origin:50% 48%;
+  opacity:.8;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.india-outline{fill:rgba(47,243,208,.035); stroke:var(--cyan); stroke-width:1.4; filter:drop-shadow(0 0 7px rgba(47,243,208,.45));}
+.state-node{cursor:pointer;}
+.state-node circle.glow{transition:r .25s, opacity .25s;}
+.state-node circle.core{transition:fill .3s, r .25s;}
+.state-node text{
+  font-family:var(--font-mono); font-size:7.4px; fill:var(--text-1); pointer-events:none;
+  text-anchor:middle; opacity:0; transition:opacity .2s;
+}
+.state-node.selected text, .state-node:hover text{opacity:1; fill:var(--text-0);}
+.state-node.selected circle.core{stroke:#fff; stroke-width:1.5;}
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-family:var(--font-mono); font-size:10.5px; color:var(--text-1);}
+.legend span{display:flex; align-items:center; gap:6px;}
+.legend i{width:8px;height:8px;border-radius:50%; display:inline-block;}
+
+/* ===== READOUT ===== */
+.state-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px;}
+.state-head h2{font-family:var(--font-display); font-size:19px; margin:0; letter-spacing:1px; color:var(--text-0);}
+.state-head .coord{font-family:var(--font-mono); font-size:10.5px; color:var(--text-2);}
+.metric-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px;}
+.metric-card{
+  border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:rgba(7,12,20,.5);
+  position:relative; overflow:hidden;
+}
+.metric-card .mlabel{font-family:var(--font-mono); font-size:10px; letter-spacing:1.5px; color:var(--text-2); display:flex; align-items:center; gap:6px; margin-bottom:8px;}
+.metric-card .micon{font-size:14px;}
+.metric-card .mrow{display:flex; justify-content:space-between; align-items:baseline; padding:2px 0; font-family:var(--font-mono);}
+.metric-card .mrow .mtag{font-size:9.5px; color:var(--text-2);}
+.metric-card .mrow .mval{font-size:16px; color:var(--text-0); font-weight:500;}
+.metric-card.temp{border-color:rgba(255,92,114,.3);}
+.metric-card.hum{border-color:rgba(47,243,208,.3);}
+.metric-card.rain{border-color:rgba(91,158,255,.3);}
+.metric-card.wind{border-color:rgba(155,140,255,.3);}
+.metric-card .mval.t-temp{color:var(--red);}
+.metric-card .mval.t-hum{color:var(--cyan);}
+.metric-card .mval.t-rain{color:#5b9eff;}
+.metric-card .mval.t-wind{color:var(--violet);}
+
+/* 7-day strip */
+.strip-title{font-family:var(--font-mono); font-size:10px; letter-spacing:1.5px; color:var(--text-2); margin:4px 0 8px;}
+.day-strip{display:grid; grid-template-columns:repeat(7,1fr); gap:7px; margin-bottom:18px;}
+.day-card{
+  border:1px solid var(--line); border-radius:10px; padding:8px 5px; text-align:center;
+  background:rgba(7,12,20,.45); font-family:var(--font-mono);
+}
+.day-card .dname{font-size:9.5px; color:var(--text-2); margin-bottom:5px;}
+.day-card .dtemp{font-size:13.5px; color:var(--text-0); font-weight:600;}
+.day-card .drain{font-size:9.5px; color:#5b9eff; margin-top:4px;}
+
+/* ===== DISASTER ALERTS ===== */
+.alert-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+@media (max-width:700px){.alert-grid{grid-template-columns:repeat(2,1fr);}}
+.alert-card{
+  border-radius:12px; padding:14px 10px; text-align:center; border:1px solid var(--line);
+  background:rgba(7,12,20,.5); position:relative; transition:.2s;
+}
+.alert-card .aicon{font-size:24px; margin-bottom:6px; display:block;}
+.alert-card .atitle{font-family:var(--font-display); font-size:10.5px; letter-spacing:1px; color:var(--text-1); margin-bottom:4px;}
+.alert-card .asev{font-family:var(--font-head); font-weight:700; font-size:13.5px; letter-spacing:.5px;}
+.alert-card .apct{font-family:var(--font-mono); font-size:10px; color:var(--text-2); margin-top:4px;}
+.alert-card.lvl-low{border-color:rgba(47,243,208,.35);}
+.alert-card.lvl-low .asev{color:var(--cyan);}
+.alert-card.lvl-watch{border-color:rgba(255,194,71,.4);}
+.alert-card.lvl-watch .asev{color:var(--amber);}
+.alert-card.lvl-warn{border-color:rgba(255,150,60,.5); box-shadow:0 0 14px rgba(255,150,60,.12);}
+.alert-card.lvl-warn .asev{color:#ff9a3c;}
+.alert-card.lvl-severe{border-color:rgba(255,92,114,.6); box-shadow:0 0 18px rgba(255,92,114,.22); animation:cardpulse 1.8s ease-in-out infinite;}
+.alert-card.lvl-severe .asev{color:var(--red);}
+@keyframes cardpulse{0%,100%{box-shadow:0 0 14px rgba(255,92,114,.18);}50%{box-shadow:0 0 26px rgba(255,92,114,.4);}}
+
+/* national ticker */
+.ticker-wrap{
+  margin:16px 0 0; border:1px solid var(--line); border-radius:12px; padding:10px 16px;
+  background:rgba(7,12,20,.4); display:flex; align-items:center; gap:12px; overflow:hidden;
+}
+.ticker-wrap .tlabel{font-family:var(--font-display); font-size:10px; color:var(--red); letter-spacing:1.5px; flex-shrink:0;}
+.ticker-track{font-family:var(--font-mono); font-size:12px; color:var(--text-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.ticker-track b{color:var(--text-0);}
+
+/* ===== ACCURACY PANEL ===== */
+.acc-toggle{
+  position:fixed; right:22px; bottom:22px; z-index:30;
+  width:46px; height:46px; border-radius:50%; border:1px solid var(--line);
+  background:rgba(10,15,26,.85); color:var(--text-2); cursor:pointer; font-size:18px;
+  display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px);
+  transition:.2s;
+}
+.acc-toggle:hover{color:var(--cyan); border-color:var(--cyan); box-shadow:0 0 14px rgba(47,243,208,.25);}
+.acc-panel{
+  position:fixed; right:22px; bottom:80px; z-index:30; width:330px; max-height:60vh; overflow:auto;
+  background:linear-gradient(180deg, rgba(13,23,38,.97), rgba(8,13,22,.97));
+  border:1px solid var(--line); border-radius:14px; padding:16px;
+  transform:translateY(12px) scale(.97); opacity:0; pointer-events:none; transition:.2s;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+}
+.acc-panel.open{transform:translateY(0) scale(1); opacity:1; pointer-events:auto;}
+.acc-panel h3{font-family:var(--font-display); font-size:12px; letter-spacing:1.5px; color:var(--text-0); margin:0 0 4px;}
+.acc-panel .sub{font-family:var(--font-mono); font-size:9.5px; color:var(--text-2); margin-bottom:12px;}
+.acc-row{margin-bottom:10px;}
+.acc-row .alabel{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10.5px; color:var(--text-1); margin-bottom:4px;}
+.acc-row .abar{height:6px; border-radius:4px; background:rgba(255,255,255,.06); overflow:hidden;}
+.acc-row .afill{height:100%; border-radius:4px; background:linear-gradient(90deg, var(--cyan-dim), var(--cyan));}
+.acc-row .ameta{font-family:var(--font-mono); font-size:9px; color:var(--text-2); margin-top:3px;}
+
+.trend-box{border:1px solid var(--line); border-radius:12px; padding:10px 12px 6px; background:rgba(7,12,20,.45);}
+.trend-box svg{width:100%; height:auto; display:block;}
+.trend-legend{display:flex; gap:14px; font-family:var(--font-mono); font-size:9.5px; color:var(--text-2); margin-top:2px;}
+.trend-legend span{display:flex; align-items:center; gap:5px;}
+.trend-legend i{width:7px;height:7px;border-radius:50%;display:inline-block;}
+
+footer{margin-top:26px; text-align:center; font-family:var(--font-mono); font-size:10.5px; color:var(--text-2);}
+footer a{color:var(--cyan); text-decoration:none;}
+
+@media (max-width:600px){
+  .metric-grid{grid-template-columns:1fr 1fr;}
+  .day-strip{grid-template-columns:repeat(4,1fr);}
+  .alert-grid{grid-template-columns:repeat(2,1fr);}
+  header.topbar{flex-direction:column; align-items:flex-start; gap:10px;}
+  .askbar form{flex-direction:column;}
+  .askbar button{padding:12px 0;}
+  .metric-card .mrow .mval{font-size:13.5px;}
+  .metric-card .mrow{flex-wrap:nowrap;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="badge">🛰️</div>
+      <div>
+        <h1>INDIA CLIMATE DIGITAL TWIN</h1>
+        <div class="sub">XGBoost + LSTM FORECAST ENGINE — 28 STATES</div>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <span><span class="live-dot"></span>LIVE MODEL</span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="askbar">
+    <form id="askform">
+      <input id="askinput" type="text" autocomplete="off" placeholder='Ask a question… "What is the weather in Kerala?"'>
+      <button type="submit">GO ▸</button>
+    </form>
+  </div>
+  <div class="ask-answer" id="askanswer"></div>
+  <div class="ask-hint">Try: "rainfall chances in Tamil Nadu" · "temperature in Andhra Pradesh on 2026-12-03" · "model accuracy"</div>
+
+  <div class="ticker-wrap">
+    <div class="tlabel">⚠ NATIONAL WATCH</div>
+    <div class="ticker-track" id="ticker">Loading hazard feed…</div>
+  </div>
+
+  <div class="maingrid" style="margin-top:18px;">
+    <div class="panel mappanel">
+      <div class="panel-title"><span class="dash"></span>INDIA — TAP A STATE</div>
+      <div class="map-stage">
+        <div class="sweep"></div>
+        <svg id="mapsvg" viewBox="0 0 680 800" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="legend">
+        <span><i style="background:#2ff3d0"></i>Calm</span>
+        <span><i style="background:#ffc247"></i>Watch</span>
+        <span><i style="background:#ff9a3c"></i>Warning</span>
+        <span><i style="background:#ff5c72"></i>Severe</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="state-head">
+        <h2 id="stateName">—</h2>
+        <span class="coord" id="stateCoord">—</span>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card temp">
+          <div class="mlabel"><span class="micon">🌡️</span>TEMPERATURE</div>
+          <div class="mrow"><span class="mtag">TODAY</span><span class="mval t-temp" id="t1">—</span></div>
+          <div class="mrow"><span class="mtag">TOMORROW</span><span class="mval t-temp" id="t2">—</span></div>
+          <div class="mrow"><span class="mtag">7D AVG</span><span class="mval t-temp" id="t3">—</span></div>
+        </div>
+        <div class="metric-card hum">
+          <div class="mlabel"><span class="micon">💧</span>HUMIDITY</div>
+          <div class="mrow"><span class="mtag">TODAY</span><span class="mval t-hum" id="h1">—</span></div>
+          <div class="mrow"><span class="mtag">TOMORROW</span><span class="mval t-hum" id="h2">—</span></div>
+          <div class="mrow"><span class="mtag">7D AVG</span><span class="mval t-hum" id="h3">—</span></div>
+        </div>
+        <div class="metric-card rain">
+          <div class="mlabel"><span class="micon">🌧️</span>RAINFALL</div>
+          <div class="mrow"><span class="mtag">TODAY</span><span class="mval t-rain" id="r1">—</span></div>
+          <div class="mrow"><span class="mtag">TOMORROW</span><span class="mval t-rain" id="r2">—</span></div>
+          <div class="mrow"><span class="mtag">7D TOTAL</span><span class="mval t-rain" id="r3">—</span></div>
+        </div>
+        <div class="metric-card wind">
+          <div class="mlabel"><span class="micon">🌬️</span>WIND SPEED</div>
+          <div class="mrow"><span class="mtag">TODAY</span><span class="mval t-wind" id="w1">—</span></div>
+          <div class="mrow"><span class="mtag">TOMORROW</span><span class="mval t-wind" id="w2">—</span></div>
+          <div class="mrow"><span class="mtag">7D AVG</span><span class="mval t-wind" id="w3">—</span></div>
+        </div>
+      </div>
+
+      <div class="strip-title">7-DAY FORECAST — XGBOOST</div>
+      <div class="day-strip" id="dayStrip"></div>
+
+      <div class="strip-title">DISASTER ALERT — <span id="alertStateLabel">—</span></div>
+      <div class="alert-grid" id="alertGrid"></div>
+
+      <div class="strip-title" style="margin-top:18px;">14-DAY TEMPERATURE &amp; RAINFALL TREND</div>
+      <div class="trend-box">
+        <svg id="trendChart" viewBox="0 0 560 150" preserveAspectRatio="none"></svg>
+        <div class="trend-legend">
+          <span><i style="background:#ff5c72"></i>Temp °C</span>
+          <span><i style="background:#5b9eff"></i>Rain mm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    India Climate Digital Twin · forecasts generated by an XGBoost regression ensemble (temperature, humidity, rainfall, wind speed, flood / drought / heatwave / cyclone probability) trained on 10 years of daily state-level climate data · for demonstration purposes, not an official weather service
+  </footer>
+</div>
+
+<button class="acc-toggle" id="accToggle" title="Model accuracy">📊</button>
+<div class="acc-panel" id="accPanel">
+  <h3>MODEL ACCURACY</h3>
+  <div class="sub">Chronological hold-out test · XGBoost regressors</div>
+  <div id="accBody"></div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
